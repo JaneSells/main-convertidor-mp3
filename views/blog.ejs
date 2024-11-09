@@ -15,17 +15,20 @@
 
     <%- include('partials/header') %>
 
-    <main>
-        <ul>
-            <% posts.forEach(post => { %>
-                <li>
-                    <h2><a href="/blog/<%= post.fileName %>"><%= post.title %></a></h2>
-                    <p><small>Published on: <%= post.date %></small></p>
-                    <p><%= post.description %></p>
-                </li>
-            <% }); %>
-        </ul>
-    </main>
+    <div class="blog-container">
+  <% posts.forEach(post => { %>
+    <div class="blog-post">
+      <% if (post.thumbnail) { %>
+        <img src="<%= post.thumbnail %>" alt="<%= post.title %> Thumbnail" class="blog-thumbnail">
+      <% } %>
+      <h2><a href="/blog/<%= post.fileName %>"><%= post.title %></a></h2>
+      <small>Published on: <%= post.date %></small>
+      <p><%= post.description %></p>
+      <a href="/blog/<%= post.fileName %>">Read more</a>
+    </div>
+  <% }) %>
+</div>
+
 
 
 
