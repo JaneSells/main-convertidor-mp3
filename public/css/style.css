@@ -285,3 +285,82 @@ body {
   }
 }
 
+
+
+/* Blog Section Styling */
+.blog-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+  justify-content: center;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.blog-post {
+  background-color: #222;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  width: calc(33.333% - 20px); /* Three posts per row */
+  transition: transform 0.3s ease;
+}
+
+.blog-post:hover {
+  transform: scale(1.05);
+}
+
+.blog-post h2 {
+  font-size: 1.5em;
+  padding: 15px 20px 5px;
+}
+
+.blog-post p {
+  padding: 0 20px 15px;
+  color: #ccc;
+}
+
+.blog-post small {
+  display: block;
+  padding: 0 20px 10px;
+  color: #888;
+}
+
+.blog-post a {
+  color: #e74c3c;
+  text-decoration: none;
+  font-weight: bold;
+  display: block;
+  padding: 10px 20px;
+  background-color: #333;
+  text-align: center;
+}
+
+.blog-post a:hover {
+  background-color: #444;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .blog-post {
+    width: calc(50% - 20px); /* Two posts per row */
+  }
+}
+
+@media (max-width: 600px) {
+  .blog-post {
+    width: 100%; /* Single column on small screens */
+  }
+}
+
+
+/* Blog Thumbnail Styling */
+.blog-thumbnail {
+  width: 100%;
+  height: 180px;
+  object-fit: cover; /* Ensures the image covers the area without distortion */
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
