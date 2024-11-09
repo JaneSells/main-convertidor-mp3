@@ -59,9 +59,9 @@ app.get('/blog', (req, res) => {
             );
 
             // Include thumbnail path if it exists in metadata
-            const thumbnailPath = meta.thumbnail.startsWith("http") 
-    ? meta.thumbnail 
-    : `/thumbnails/${meta.thumbnail}`;
+            const thumbnailPath = meta.thumbnail
+    ? (meta.thumbnail.startsWith("http") ? meta.thumbnail : `/thumbnails/${meta.thumbnail}`)
+    : null;
 
             return { ...meta, body, thumbnail: thumbnailPath, fileName: file.replace('.md', '') };
         });
