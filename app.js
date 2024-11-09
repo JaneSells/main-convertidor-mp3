@@ -16,14 +16,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Configure Multer for file uploads (Markdown + Thumbnail)
+// Configure Multer for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        if (file.fieldname === 'thumbnail') {
-            cb(null, 'public/thumbnails'); // Save thumbnails in 'public/thumbnails'
-        } else {
-            cb(null, 'posts'); // Save markdown files in the 'posts' directory
-        }
+        cb(null, 'posts'); // Save uploaded files in the 'posts' directory
     },
     filename: (req, file, cb) => {
         const fileName = file.originalname.toLowerCase().split(' ').join('-');
@@ -37,11 +33,15 @@ app.get('/', (req, res) => {
     res.render("index");
 });
 
-// About route
+// About page route
 app.get('/about', (req, res) => {
-    res.render('about'); // Ensure you have an 'about.ejs' in your 'views' folder
+    res.render('about');
 });
 
+// Other tool page route
+app.get('/other-tool', (req, res) => {
+    res.render('other-tool'); // Placeholder for an additional tool page
+});
 
 // Blog listing route
 app.get('/blog', (req, res) => {
@@ -64,10 +64,7 @@ app.get('/blog', (req, res) => {
                 })
             );
 
-            // Include thumbnail path if it exists in metadata
-            const thumbnailPath = meta.thumbnail ? `/thumbnails/${meta.thumbnail}` : null;
-
-            return { ...meta, body, thumbnail: thumbnailPath, fileName: file.replace('.md', '') };
+            return { ...meta, body, fileName: file.replace('.md', '') };
         });
 
         res.render('blog', { posts });
@@ -76,13 +73,6 @@ app.get('/blog', (req, res) => {
         res.status(500).send("Internal Server Error: Failed to load blog posts.");
     }
 });
-
-// Other tool page route
-app.get('/other-tool', (req, res) => {
-    res.render('other-tool'); // Placeholder for an additional tool page
-});
-
-
 
 // Blog post detail route
 app.get('/blog/:slug', (req, res) => {
@@ -116,28 +106,43 @@ app.get('/blog/:slug', (req, res) => {
     }
 });
 
-// Admin route to upload markdown and thumbnail
-app.post('/admin/upload', upload.fields([{ name: 'markdownFile' }, { name: 'thumbnail' }]), (req, res) => {
-    const markdownFile = req.files['markdownFile'][0];
-    const thumbnailFile = req.files['thumbnail'] ? req.files['thumbnail'][0] : null;
+// Admin route to render the admin panel
+app.get('/admin', (req, res) => {
+    const postsDir = path.join(__dirname, 'posts');
+    const files = fs.readdirSync(postsDir);
+    res.render('admin', { files });
+});
 
-    // Insert the thumbnail filename in markdown metadata if uploaded
-    if (thumbnailFile) {
-        const markdownPath = path.join(__dirname, 'posts', markdownFile.filename);
-        const content = fs.readFileSync(markdownPath, 'utf-8');
-        const newContent = content.replace(
-            '---\n', 
-            `---\nthumbnail: ${thumbnailFile.filename}\n`
-        );
-        fs.writeFileSync(markdownPath, newContent, 'utf-8');
-    }
-
+// Route to handle file upload
+app.post('/admin/upload', upload.single('markdownFile'), (req, res) => {
     res.redirect('/admin'); // Redirect to the admin panel after upload
 });
 
+// Route to edit an existing post
+app.get('/admin/edit/:fileName', (req, res) => {
+    const filePath = path.join(__dirname, 'posts', req.params.fileName);
+    if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        res.render('edit', { fileName: req.params.fileName, content });
+    } else {
+        res.status(404).send('Post not found');
+    }
+});
 
+app.post('/admin/edit/:fileName', (req, res) => {
+    const filePath = path.join(__dirname, 'posts', req.params.fileName);
+    fs.writeFileSync(filePath, req.body.content, 'utf-8');
+    res.redirect('/admin');
+});
 
-
+// Route to delete an existing post
+app.get('/admin/delete/:fileName', (req, res) => {
+    const filePath = path.join(__dirname, 'posts', req.params.fileName);
+    if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+    }
+    res.redirect('/admin');
+});
 
 // Convert to MP3 route
 app.post('/convert-mp3', async (req, res) => {
