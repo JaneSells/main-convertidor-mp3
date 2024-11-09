@@ -13,16 +13,28 @@
 }
 
 html, body{
+  height: 100%; /* Ensure body takes full height */
   color: white;
-  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
   font-family: 'Orbitron', sans-serif;
 }
 
 body {
+  
   display: flex;
   flex-direction: column;
   color: white;
 }
+
+
+body {
+  overflow-y: auto; /* Allow vertical scroll if content overflows */
+  margin: 0; /* Remove default margin for a consistent layout */
+  padding: 0;
+}
+
 
 /* Main content should take up remaining height */
 main {
@@ -292,15 +304,20 @@ body {
 
 /* Blog Section Styling */
 
+
+
 .blog-container {
+  max-width: 1200px;
+  margin: 60px auto 0; /* Space from the top to avoid header overlap */
+  padding: 20px;
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  padding: 20px;
   justify-content: center;
-  max-width: 1200px;
-  margin: 60px auto 0; /* Added top margin to prevent overlap */
 }
+
+  
+
 
 .blog-post {
   background-color: #222;
@@ -312,6 +329,8 @@ body {
   transition: transform 0.3s ease;
   margin-top: 20px; /* Additional top margin */
 }
+
+
 
 .blog-post:hover {
   transform: scale(1.05);
@@ -393,6 +412,10 @@ body {
     padding: 0px; /* Added padding for better spacing inside the card */
     border-radius: 6px;
   }
+
+
+
+  
 
   .blog-post h2 {
     font-size: 1em; /* Smaller font size for titles on small screens */
