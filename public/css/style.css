@@ -379,3 +379,47 @@ body {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
+
+
+/* Small Mobile Screen Adjustments */
+@media (max-width: 480px) {
+  .blog-container {
+    padding: 5px; /* Further reduced side padding */
+  }
+
+  .blog-post {
+    width: 100%; /* Ensure single-column layout */
+    margin-top: 15px;
+    padding: 0px; /* Added padding for better spacing inside the card */
+    border-radius: 6px;
+  }
+
+  .blog-post h2 {
+    font-size: 1em; /* Smaller font size for titles on small screens */
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .blog-thumbnail {
+    width: 100%;
+  height: 180px;
+  object-fit: cover; /* Ensures the image covers the area without distortion */
+  border-radius: 4px 4px 0 0; /* Rounded corners for a neat look */
+  }
+
+  .blog-post small {
+    font-size: 0.5em;
+    color: #aaa; /* Softer color for date */
+    margin-bottom: 0px;
+  }
+
+  .blog-post p {
+    font-size: 0.6em;
+    padding: 5px auto 10px; /* Reduced padding to save space */
+  }
+
+  .blog-post a {
+    font-size: 0.85em; /* Smaller font size for the "Read more" link */
+    padding: 5px 10px;
+  }
+}
