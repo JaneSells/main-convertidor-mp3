@@ -129,6 +129,54 @@ app.post('/admin/upload', upload.fields([{ name: 'markdownFile' }, { name: 'thum
     res.redirect('/admin'); // Redirect to the admin panel after upload
 });
 
+
+
+
+
+// Convert to MP3 route
+app.post('/convert-mp3', async (req, res) => {
+    const url = req.body.videoID;
+    let uniqueID;
+
+    // Extract YouTube video ID
+    if (url.includes('youtu.be')) {
+        uniqueID = (url.match(/youtu\.be\/([^?&]+)/) || [, null])[1];
+    } else if (url.includes('/shorts/')) {
+        uniqueID = (url.match(/\/shorts\/([^?&]+)/) || [, null])[1];
+    } else {
+        uniqueID = (url.match(/[?&]v=([^&]*)/) || [, null])[1];
+    }
+
+    if (!uniqueID) {
+        return res.render("index", { success: false, message: "Please enter a valid YouTube URL" });
+    }
+
+    try {
+        const fetchAPI = await fetch(`https://youtube-mp36.p.rapidapi.com/dl?id=${uniqueID}`, {
+            method: "GET",
+            headers: {
+                "X-RapidAPI-Key": process.env.API_KEY,
+                "X-RapidAPI-Host": process.env.API_HOST
+            }
+        });
+
+        const response = await fetchAPI.json();
+
+        if (response.status === "ok") {
+            return res.render("index", {
+                success: true,
+                song_title: response.title,
+                song_link: response.link
+            });
+        } else {
+            return res.render("index", { success: false, message: response.msg });
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        return res.render("index", { success: false, message: "An error occurred. Please try again." });
+    }
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
