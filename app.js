@@ -77,6 +77,12 @@ app.get('/blog', (req, res) => {
     }
 });
 
+// Other tool page route
+app.get('/other-tool', (req, res) => {
+    res.render('other-tool'); // Placeholder for an additional tool page
+});
+
+
 
 // Blog post detail route
 app.get('/blog/:slug', (req, res) => {
