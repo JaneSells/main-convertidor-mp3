@@ -71,6 +71,7 @@ app.get('/blog', (req, res) => {
     }
 });
 
+
 // Blog post detail route
 app.get('/blog/:slug', (req, res) => {
     const postFile = `${req.params.slug}.md`;
