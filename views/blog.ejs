@@ -12,46 +12,7 @@
 </head>
 <body>
 
-<style>
-/* Force scroll on the body */
-html, body {
-  height: 100%; /* Ensure body takes full height */
-  overflow-y: scroll; /* Force vertical scrolling */
-  margin: 0;
-  padding: 0;
-}
 
-/* Ensure .blog-container doesn’t restrict height */
-.blog-container {
-  max-width: 1200px;
-  margin: 80px auto 0; /* Space from the top to avoid overlap with header */
-  padding: 20px;
-  overflow: auto; /* Ensure container is scrollable if content overflows */
-}
-
-/* Check for any potential overflow issues */
-header, footer, .blog-container {
-  overflow: visible; /* Ensure overflow is not restricted */
-}
-
-/* Additional blog post layout */
-.blog-post {
-  background-color: #222;
-  color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: calc(33.333% - 20px); /* Fits three posts per row */
-  margin-top: 20px;
-  transition: transform 0.3s ease;
-}
-
-/* Single column on smaller screens */
-@media (max-width: 600px) {
-  .blog-post {
-    width: 100%; /* Single column */
-  }
-}
-</style>
 
     <%- include('partials/header') %>
 
