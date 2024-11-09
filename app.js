@@ -16,10 +16,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Configure Multer for file uploads
+// Configure Multer for file uploads (Markdown + Thumbnail)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'posts'); // Save uploaded files in the 'posts' directory
+        if (file.fieldname === 'thumbnail') {
+            cb(null, 'public/thumbnails'); // Save thumbnails in 'public/thumbnails'
+        } else {
+            cb(null, 'posts'); // Save markdown files in the 'posts' directory
+        }
     },
     filename: (req, file, cb) => {
         const fileName = file.originalname.toLowerCase().split(' ').join('-');
@@ -31,16 +35,6 @@ const upload = multer({ storage: storage });
 // Home route
 app.get('/', (req, res) => {
     res.render("index");
-});
-
-// About page route
-app.get('/about', (req, res) => {
-    res.render('about');
-});
-
-// Other tool page route
-app.get('/other-tool', (req, res) => {
-    res.render('other-tool'); // Placeholder for an additional tool page
 });
 
 // Blog listing route
@@ -64,7 +58,10 @@ app.get('/blog', (req, res) => {
                 })
             );
 
-            return { ...meta, body, fileName: file.replace('.md', '') };
+            // Include thumbnail path if it exists in metadata
+            const thumbnailPath = meta.thumbnail ? `/thumbnails/${meta.thumbnail}` : null;
+
+            return { ...meta, body, thumbnail: thumbnailPath, fileName: file.replace('.md', '') };
         });
 
         res.render('blog', { posts });
@@ -106,86 +103,23 @@ app.get('/blog/:slug', (req, res) => {
     }
 });
 
-// Admin route to render the admin panel
-app.get('/admin', (req, res) => {
-    const postsDir = path.join(__dirname, 'posts');
-    const files = fs.readdirSync(postsDir);
-    res.render('admin', { files });
-});
+// Admin route to upload markdown and thumbnail
+app.post('/admin/upload', upload.fields([{ name: 'markdownFile' }, { name: 'thumbnail' }]), (req, res) => {
+    const markdownFile = req.files['markdownFile'][0];
+    const thumbnailFile = req.files['thumbnail'] ? req.files['thumbnail'][0] : null;
 
-// Route to handle file upload
-app.post('/admin/upload', upload.single('markdownFile'), (req, res) => {
+    // Insert the thumbnail filename in markdown metadata if uploaded
+    if (thumbnailFile) {
+        const markdownPath = path.join(__dirname, 'posts', markdownFile.filename);
+        const content = fs.readFileSync(markdownPath, 'utf-8');
+        const newContent = content.replace(
+            '---\n', 
+            `---\nthumbnail: ${thumbnailFile.filename}\n`
+        );
+        fs.writeFileSync(markdownPath, newContent, 'utf-8');
+    }
+
     res.redirect('/admin'); // Redirect to the admin panel after upload
-});
-
-// Route to edit an existing post
-app.get('/admin/edit/:fileName', (req, res) => {
-    const filePath = path.join(__dirname, 'posts', req.params.fileName);
-    if (fs.existsSync(filePath)) {
-        const content = fs.readFileSync(filePath, 'utf-8');
-        res.render('edit', { fileName: req.params.fileName, content });
-    } else {
-        res.status(404).send('Post not found');
-    }
-});
-
-app.post('/admin/edit/:fileName', (req, res) => {
-    const filePath = path.join(__dirname, 'posts', req.params.fileName);
-    fs.writeFileSync(filePath, req.body.content, 'utf-8');
-    res.redirect('/admin');
-});
-
-// Route to delete an existing post
-app.get('/admin/delete/:fileName', (req, res) => {
-    const filePath = path.join(__dirname, 'posts', req.params.fileName);
-    if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-    }
-    res.redirect('/admin');
-});
-
-// Convert to MP3 route
-app.post('/convert-mp3', async (req, res) => {
-    const url = req.body.videoID;
-    let uniqueID;
-
-    // Extract YouTube video ID
-    if (url.includes('youtu.be')) {
-        uniqueID = (url.match(/youtu\.be\/([^?&]+)/) || [, null])[1];
-    } else if (url.includes('/shorts/')) {
-        uniqueID = (url.match(/\/shorts\/([^?&]+)/) || [, null])[1];
-    } else {
-        uniqueID = (url.match(/[?&]v=([^&]*)/) || [, null])[1];
-    }
-
-    if (!uniqueID) {
-        return res.render("index", { success: false, message: "Please enter a valid YouTube URL" });
-    }
-
-    try {
-        const fetchAPI = await fetch(`https://youtube-mp36.p.rapidapi.com/dl?id=${uniqueID}`, {
-            method: "GET",
-            headers: {
-                "X-RapidAPI-Key": process.env.API_KEY,
-                "X-RapidAPI-Host": process.env.API_HOST
-            }
-        });
-
-        const response = await fetchAPI.json();
-
-        if (response.status === "ok") {
-            return res.render("index", {
-                success: true,
-                song_title: response.title,
-                song_link: response.link
-            });
-        } else {
-            return res.render("index", { success: false, message: response.msg });
-        }
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        return res.render("index", { success: false, message: "An error occurred. Please try again." });
-    }
 });
 
 // Start server
