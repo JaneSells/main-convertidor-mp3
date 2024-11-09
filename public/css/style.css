@@ -308,6 +308,7 @@ body {
 
 .blog-container {
   max-width: 1200px;
+  margin-bottom: 90px; /* Additional bottom margin */
   margin: 60px auto 0; /* Space from the top to avoid header overlap */
   padding: 20px;
   display: flex;
@@ -328,6 +329,7 @@ body {
   width: calc(33.333% - 20px); /* Three posts per row */
   transition: transform 0.3s ease;
   margin-top: 20px; /* Additional top margin */
+  
 }
 
 
@@ -378,6 +380,7 @@ body {
 @media (max-width: 600px) {
   .blog-container {
     padding: 10px; /* Reduced side padding */
+    margin-bottom: 90px; /* Additional top margin */
   }
 
   .blog-post {
@@ -404,11 +407,14 @@ body {
 @media (max-width: 480px) {
   .blog-container {
     padding: 5px; /* Further reduced side padding */
+    /* margin-bottom: 90px; */ /* Additional top margin */
+    margin-bottom: 90px; /* Additional top margin */
   }
 
   .blog-post {
     width: 100%; /* Ensure single-column layout */
     margin-top: 15px;
+    
     padding: 0px; /* Added padding for better spacing inside the card */
     border-radius: 6px;
   }
