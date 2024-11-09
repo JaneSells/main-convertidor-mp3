@@ -1,5 +1,5 @@
 ---
-title: Your Post Title
+title: Youtube To Mp3 Converter: How To Leverage Mp3 To Study Faster 
 date: YYYY-MM-DD
 description: A short description of the post
 thumbnail: YouTube-to-MP3-Converter.jpg
