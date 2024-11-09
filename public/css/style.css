@@ -360,7 +360,14 @@ body {
 .blog-thumbnail {
   width: 100%;
   height: 180px;
-  object-fit: cover; /* Ensures the image covers the area without distortion */
+  object-fit: cover;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+  transition: transform 0.3s ease;
 }
+
+/* Slight zoom effect on hover for blog post */
+.blog-post:hover .blog-thumbnail {
+  transform: scale(1.05);
+}
+
