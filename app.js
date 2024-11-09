@@ -37,6 +37,12 @@ app.get('/', (req, res) => {
     res.render("index");
 });
 
+// About route
+app.get('/about', (req, res) => {
+    res.render('about'); // Ensure you have an 'about.ejs' in your 'views' folder
+});
+
+
 // Blog listing route
 app.get('/blog', (req, res) => {
     try {
