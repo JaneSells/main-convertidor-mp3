@@ -4,10 +4,29 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const { marked } = require('marked'); // Correct way to import 'marked'
 const multer = require('multer'); // Import 'multer' for file uploads
+const session = require('express-session'); // Import 'express-session'
+const bcrypt = require('bcrypt'); // Import 'bcrypt' for password hashing
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Session configuration
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'mySecret', // Use a strong secret from .env
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } // Set to true if using HTTPS
+}));
+
+// Middleware to check if user is authenticated
+const isAuthenticated = (req, res, next) => {
+    if (req.session.user) {
+        return next();
+    } else {
+        res.redirect('/login');
+    }
+};
 
 // Set up view engine and static files
 app.set('views', path.join(__dirname, 'views'));
@@ -106,20 +125,54 @@ app.get('/blog/:slug', (req, res) => {
     }
 });
 
-// Admin route to render the admin panel
-app.get('/admin', (req, res) => {
+// Login route
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+
+// Handle login form submission
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    // Hardcoded credentials (replace with your own setup)
+    const storedUsername = 'admin';
+    const storedPasswordHash = process.env.ADMIN_PASSWORD_HASH; // Hashed password from .env
+
+    if (username === storedUsername) {
+        const isMatch = await bcrypt.compare(password, storedPasswordHash);
+        if (isMatch) {
+            req.session.user = username; // Store user in session
+            return res.redirect('/admin');
+        }
+    }
+
+    res.status(401).send('Invalid username or password');
+});
+
+// Logout route
+app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).send('Failed to log out');
+        }
+        res.redirect('/login');
+    });
+});
+
+// Admin route (protected)
+app.get('/admin', isAuthenticated, (req, res) => {
     const postsDir = path.join(__dirname, 'posts');
     const files = fs.readdirSync(postsDir);
     res.render('admin', { files });
 });
 
-// Route to handle file upload
-app.post('/admin/upload', upload.single('markdownFile'), (req, res) => {
+// Route to handle file upload (protected)
+app.post('/admin/upload', isAuthenticated, upload.single('markdownFile'), (req, res) => {
     res.redirect('/admin'); // Redirect to the admin panel after upload
 });
 
-// Route to edit an existing post
-app.get('/admin/edit/:fileName', (req, res) => {
+// Route to edit an existing post (protected)
+app.get('/admin/edit/:fileName', isAuthenticated, (req, res) => {
     const filePath = path.join(__dirname, 'posts', req.params.fileName);
     if (fs.existsSync(filePath)) {
         const content = fs.readFileSync(filePath, 'utf-8');
@@ -129,14 +182,14 @@ app.get('/admin/edit/:fileName', (req, res) => {
     }
 });
 
-app.post('/admin/edit/:fileName', (req, res) => {
+app.post('/admin/edit/:fileName', isAuthenticated, (req, res) => {
     const filePath = path.join(__dirname, 'posts', req.params.fileName);
     fs.writeFileSync(filePath, req.body.content, 'utf-8');
     res.redirect('/admin');
 });
 
-// Route to delete an existing post
-app.get('/admin/delete/:fileName', (req, res) => {
+// Route to delete an existing post (protected)
+app.get('/admin/delete/:fileName', isAuthenticated, (req, res) => {
     const filePath = path.join(__dirname, 'posts', req.params.fileName);
     if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
