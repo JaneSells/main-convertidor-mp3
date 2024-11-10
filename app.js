@@ -9,6 +9,34 @@ const PORT = process.env.PORT || 3000;
 app.set('view engine', 'ejs');
 app.use(express.static("public"));
 
+
+
+
+
+
+
+
+
+
+// Home route
+app.get('/', (req, res) => {
+    res.render("index");
+});
+
+// About page route
+app.get('/about', (req, res) => {
+    res.render('about');
+});
+
+// Other tool page route
+app.get('/other-tool', (req, res) => {
+    res.render('other-tool'); // Placeholder for an additional tool page
+});
+
+
+
+
+
 //parse html data for POST requests
 app.use(express.urlencoded({ extended:true}));
 app.use(express.json());
