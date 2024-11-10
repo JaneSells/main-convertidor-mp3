@@ -59,9 +59,7 @@ app.get('/blog', (req, res) => {
             );
 
             // Include thumbnail path if it exists in metadata
-            const thumbnailPath = meta.thumbnail
-                ? (meta.thumbnail.startsWith("http") ? meta.thumbnail : `/thumbnails/${meta.thumbnail}`)
-                : null;
+            const thumbnailPath = meta.thumbnail ? `/thumbnails/${meta.thumbnail}` : null;
 
             return { ...meta, body, thumbnail: thumbnailPath, fileName: file.replace('.md', '') };
         });
@@ -107,12 +105,8 @@ app.get('/blog/:slug', (req, res) => {
 
 // Admin route to upload markdown and thumbnail
 app.post('/admin/upload', upload.fields([{ name: 'markdownFile' }, { name: 'thumbnail' }]), (req, res) => {
-    const markdownFile = req.files['markdownFile'] ? req.files['markdownFile'][0] : null;
+    const markdownFile = req.files['markdownFile'][0];
     const thumbnailFile = req.files['thumbnail'] ? req.files['thumbnail'][0] : null;
-
-    if (!markdownFile) {
-        return res.status(400).send("Markdown file is required.");
-    }
 
     // Insert the thumbnail filename in markdown metadata if uploaded
     if (thumbnailFile) {
